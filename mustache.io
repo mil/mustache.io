@@ -1,5 +1,4 @@
 #!/usr/bin/env io
-
 Sequence charAt := method(pos, thisContext at(pos) asCharacter)
 Sequence isWhiteSpace := method(Sequence whiteSpaceStrings contains(thisContext))
 
@@ -14,7 +13,7 @@ Sequence switcher := method( call message arguments foreach(index, msg,
 
 
 Mustache := Object clone do(
-	delimiters := list("{{{", "}}}")
+	delimiters := list("{{", "}}")
 
 	/* Attemps to get the given variable stored in passed object */
 	getVariable := method(variable, object,
@@ -30,6 +29,7 @@ Mustache := Object clone do(
 		string := string asMutable	
 		position := 0; mustacheStart := nil
 		delSize := delimiters at(0) size
+		iteratingSection := nil
 
 		/* Loop until we cant find another opening {{ */
 		while ((mustacheStart := string findSeq(delimiters at(0), position)) != nil,
@@ -41,12 +41,19 @@ Mustache := Object clone do(
 			/* Determine the replacement String */
 			replacementString := "" asMutable
 			mustacheCapture charAt(0) switcher(
-				(=="!", "Commented section" println)
-				(=="#", "Iterating section" println),
+				(=="!", replacementString = "") /* Commented Section */
+				(=="#", 
+					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
+					replacementString = ""
+				),
 				(=="^", "Inverting section" println),
 				(==">", "Partial section" println),
 				(=="&", "Unescaped variable" println),
-				( replacementString = getVariable(mustacheCapture, object))
+				/* Default -- Variable */
+				(
+					replacementString = getVariable(mustacheCapture,
+						block(if(iteratingSection != nil, iteratingSection, object)) call)
+				)
 			)
 
 			/* Remove the old mustache and pop in new replacement String */
