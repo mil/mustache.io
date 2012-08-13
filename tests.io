@@ -25,6 +25,16 @@ runTests := method(
 		"Another substitution sub2"
 	)
 
+	
+	test("Variable and a Comment",
+		Mustache render("Some good ol {{var}}{{!and a comment}}", Object clone do(
+			var := "substitution"
+		)),
+		"Some good ol substitution"
+	)
+
+
+
 
 	test("Iteration List",
 		Mustache render("I am {{name}} and here are my children:\n{{#children}}Mr.{{.}}!!!\n{{/children}}",
@@ -34,21 +44,6 @@ runTests := method(
 			)), 
 		"I am Wiggles and here are my children:\nMr.Wiggleface!!!\nMr.Wiggler!!!\nMr.Wighton!!!\n"
 	)
-
-/*
-	test("Iteration Nest",
-		Mustache render("{{#children}}{{name}}{{/children}}",
-			Object clone do(
-				name := "wiggles"
-				children := list("wiggleface", "wiggler", "wighton")
-			)), 
-		"wigglefacewigglerwighton"
-	)
-	*/
-
-
-
-
 
 	true
 )

@@ -18,11 +18,8 @@ Mustache := Object clone do(
 
 	/* Attemps to get the given variable stored in passed object */
 	getVariable := method(variable, object,
-		/* Defaults to just a variable */
 		slotReturn := object getSlot(variable)
-		if (slotReturn != nil,
-			if (slotReturn type == "Block",  "block" , return slotReturn )
-		)
+		if (slotReturn != nil, if (slotReturn type == "Block",  "block" , slotReturn ))
 	)
 
 	render := method(string, object,
@@ -52,13 +49,12 @@ Mustache := Object clone do(
 					/* Start of iterating Section */
 					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
 					f := string findSeq(delimiters at (0), mustacheEnd)
-					("F is " .. f) println
 					while( f != nil,
 						capture := string exclusiveSlice( f + delSize + 1, string findSeq(delimiters at(1), f)) strip
 
 						/* Found the matching end musetache */
 						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-							section := string exclusiveSlice(mustacheEnd + delSize + 1, f) println
+							section := string exclusiveSlice(mustacheEnd + delSize + 1, f)
 							if (iteratingSection type == "Object") then (
 								replacementString = Mustache render(section, iteratingSection)
 							) elseif(iteratingSection type == "List") then (
@@ -74,10 +70,7 @@ Mustache := Object clone do(
 
 				(==".", block(
 					/* Iteration in iterating section */
-					if (mustacheCapture size == 1) then (
-						("Single iteration off of" .. object)  println
-						replacementString = object
-					)
+					if (mustacheCapture size == 1) then (replacementString = object)
 				)), 
 				(=="/", block( replacementString = "")),
 				(=="^", block( "Inverting section" println)),
@@ -94,7 +87,6 @@ Mustache := Object clone do(
 			string := string atInsertSeq(mustacheEnd + delSize + 1, replacementString)
 			string := string removeSlice(mustacheStart - delSize, mustacheEnd + delSize)
 
-			("Replacement string is" .. replacementString) println
 			position = position + replacementString size 
 			replacementString = ""
 		)
