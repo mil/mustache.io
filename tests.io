@@ -35,6 +35,7 @@ runTests := method(
 		"wigglefacewigglerwighton"
 	)
 
+/*
 	test("Iteration Nest",
 		Mustache render("{{#children}}{{name}}{{/children}}",
 			Object clone do(
@@ -43,6 +44,7 @@ runTests := method(
 			)), 
 		"wigglefacewigglerwighton"
 	)
+	*/
 
 
 

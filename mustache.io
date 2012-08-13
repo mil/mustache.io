@@ -4,13 +4,12 @@ Sequence isWhiteSpace := method(Sequence whiteSpaceStrings contains(thisContext)
 
 /* Takes in switch statement in form of:
 	Sequence switcher((=="matchA", someCode), (=="matchB", someCode), defaultCode) */
-Sequence switcher := method( call message arguments foreach(index, msg, 
-	if (index != call message arguments size - 1,
-		result := thisContext asString doMessage(msg arguments at(0))
-		if(result, doMessage(msg arguments at(1), call sender); break)
-	, doMessage(msg, call sender))
+Object switcher := method( call message arguments foreach(index, case, 
+	if (index != call message arguments size - 1) then (
+		result := self doMessage(case arguments at(0))
+		if(result, return doMessage(case arguments at(1), call sender) call)
+	) else ( return doMessage(case, call sender) call /* Default case */)
 ))
-
 
 Mustache := Object clone do(
 	delimiters := list("{{", "}}")
@@ -41,43 +40,69 @@ Mustache := Object clone do(
 				                        asMutable strip
 
 			/* Determine the replacement String */
-
 			mustacheCapture charAt(0) switcher(
-				(=="!", replacementString = ""), /* Commented Section */
+				(=="!", block(
+					/* Commented Section */
+					replacementString = ""
+				)), 
 
-				(=="#", 
+				(=="#", block(
 					/* Start of iterating Section */
-					call sender iteratingSection = getVariable(mustacheCapture removeAt(0), object)
-					replacementString := ""
-				),
+					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
+					f := string findSeq(delimiters at (0), mustacheEnd)
+					("F is " .. f) println
+					while( f != nil,
+						capture := string exclusiveSlice( f + delSize, string findSeq(delimiters at(1), f)) strip
+						"Capture is [#{capture}] and mustache is [#{mustacheCapture}]" interpolate println
+						if (capture removeAt(0) == mustacheCapture removeAt(0)) then (
+							"Position is #{f} based on #{capture}" interpolate println
+							break
+						)
+						f := string findSeq(delimiters at (0), mustacheEnd)
 
-				(==".", 
+					)
+					//sectionEnd := findSeq(
+					//section := inclusiveSlice(mustacheEnd, 
+					replacementString := ""
+				)),
+
+				(==".", block(
 					/* Iteration in iterating section */
 					if (mustacheCapture size == 1, 
 						("Single iteration off of" .. iteratingSection)  println
 						iteration = iteration + 1
 						replacementString = iteratingSection at(iteration)
 					)
-				), 
-				(=="/", 
+				)), 
+				(=="/", block(
 					/* End of iterating section */
-					call sender iteratingSection := nil
-					call sender iteration = -1
-				),
+					if (iteration == iteratingSection size - 1) then (
+						iteratingSection := nil
+						iteration := -1
+					) else (
+						/* Need to repeat within the iterating section
+							Search backwards for 
+						*/
+					)
+				)),
 
-				(=="^", 
+				(=="^", block(
 					/* Start of inverted section */
-					"Inverting section" println),
+					"Inverting section" println
+				)),
 
-				(==">", 
+				(==">", block(
 					/* Partial Section */
-					"Partial section" println),
+					"Partial section" println
+				)),
 
-				(=="&", 
+				(=="&", block(
 					/* Unescaped variable */
-					"Unescaped variable" println),
+					"Unescaped variable" println
+				)),
 
-				(
+				block(
+					"Default block" println
 					/* Default -- Variable */
 					replacementString = getVariable(mustacheCapture,
 						block(if(iteratingSection != nil, iteratingSection, object)) call)
