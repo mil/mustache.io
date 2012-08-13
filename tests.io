@@ -27,12 +27,12 @@ runTests := method(
 
 
 	test("Iteration List",
-		Mustache render("{{#children}}One of my children is {{.}}\n{{/children}}",
+		Mustache render("I am {{name}} and here are my children:\n{{#children}}Mr.{{.}}!!!\n{{/children}}",
 			Object clone do(
-				name := "wiggles"
-				children := list("wiggleface", "wiggler", "wighton")
+				name := "Wiggles"
+				children := list("Wiggleface", "Wiggler", "Wighton")
 			)), 
-		"wigglefacewigglerwighton"
+		"I am Wiggles and here are my children:\nMr.Wiggleface!!!\nMr.Wiggler!!!\nMr.Wighton!!!\n"
 	)
 
 /*

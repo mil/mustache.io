@@ -22,7 +22,7 @@ Mustache := Object clone do(
 		slotReturn := object getSlot(variable)
 		if (slotReturn != nil,
 			if (slotReturn type == "Block",  "block" , return slotReturn )
-		)			
+		)
 	)
 
 	render := method(string, object,
@@ -54,53 +54,35 @@ Mustache := Object clone do(
 					f := string findSeq(delimiters at (0), mustacheEnd)
 					("F is " .. f) println
 					while( f != nil,
-						capture := string exclusiveSlice( f + delSize, string findSeq(delimiters at(1), f)) strip
-						"Capture is [#{capture}] and mustache is [#{mustacheCapture}]" interpolate println
+						capture := string exclusiveSlice( f + delSize + 1, string findSeq(delimiters at(1), f)) strip
+
+						/* Found the matching end musetache */
 						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-							"Position is #{f} based on #{capture}" interpolate println
-							break
+							section := string exclusiveSlice(mustacheEnd + delSize + 1, f) println
+							if (iteratingSection type == "Object") then (
+								replacementString = Mustache render(section, iteratingSection)
+							) elseif(iteratingSection type == "List") then (
+								iteratingSection foreach(iteration,
+									replacementString = replacementString .. Mustache render(section, iteration)
+								)
+							)
+							mustacheEnd = f + mustacheCapture size + delSize /* Move end at this will be chopped */
 						)
-						f = string findSeq(delimiters at (0), mustacheEnd)
-					)
-					//sectionEnd := findSeq(
-					//section := inclusiveSlice(mustacheEnd, 
-					replacementString := ""
+						f = string findSeq(delimiters at (0), f + delSize)
+					)	
 				)),
 
 				(==".", block(
 					/* Iteration in iterating section */
-					if (mustacheCapture size == 1, 
-						("Single iteration off of" .. iteratingSection)  println
-						iteration = iteration + 1
-						replacementString = iteratingSection at(iteration)
+					if (mustacheCapture size == 1) then (
+						("Single iteration off of" .. object)  println
+						replacementString = object
 					)
 				)), 
-				(=="/", block(
-					/* End of iterating section */
-					if (iteration == iteratingSection size - 1) then (
-						iteratingSection := nil
-						iteration := -1
-					) else (
-						/* Need to repeat within the iterating section
-							Search backwards for 
-						*/
-					)
-				)),
-
-				(=="^", block(
-					/* Start of inverted section */
-					"Inverting section" println
-				)),
-
-				(==">", block(
-					/* Partial Section */
-					"Partial section" println
-				)),
-
-				(=="&", block(
-					/* Unescaped variable */
-					"Unescaped variable" println
-				)),
+				(=="/", block( replacementString = "")),
+				(=="^", block( "Inverting section" println)),
+				(==">", block( "Partial section" println)),
+				(=="&", block( "Unescaped variable" println)),
 
 				block( /* Default -- Variable */
 					replacementString = getVariable(mustacheCapture, block(
@@ -110,30 +92,12 @@ Mustache := Object clone do(
 
 			/* Remove the old mustache and pop in new replacement String */
 			string := string atInsertSeq(mustacheEnd + delSize + 1, replacementString)
-
-			if (iteratingSection != nil and 
-				(iteration != iteratingSection size -1) and (iteration != -1)) then (
-				"Not reseting the position" println
-				continue
-			)
-
 			string := string removeSlice(mustacheStart - delSize, mustacheEnd + delSize)
+
+			("Replacement string is" .. replacementString) println
 			position = position + replacementString size 
+			replacementString = ""
 		)
 		string
 	)
 )
-
-tmpl := "
-I am a Mustache {{guy}}
-I am {{age}} years old
-And my favorite color is {{color}}
-"
-obj  := Object clone do( 
-	guy := "Man" 
-	age := "32"
-	color := "Blue"
-)
-
-tmpl2 := "Simple iteration: {{#container}}{{.}}{{/container}}"
-obj2  := Object clone do( container := list("first", "second", "third") )
