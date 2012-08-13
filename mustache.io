@@ -30,7 +30,9 @@ Mustache := Object clone do(
 		position := 0; mustacheStart := nil
 		delSize := delimiters at(0) size
 		iteratingSection := nil
+		iteration := -1
 
+		replacementString := "" asMutable
 		/* Loop until we cant find another opening {{ */
 		while ((mustacheStart := string findSeq(delimiters at(0), position)) != nil,
 			mustacheStart   := mustacheStart + delSize
@@ -39,42 +41,73 @@ Mustache := Object clone do(
 				                        asMutable strip
 
 			/* Determine the replacement String */
-			replacementString := "" asMutable
+
 			mustacheCapture charAt(0) switcher(
-				(=="!", replacementString = "") /* Commented Section */
+				(=="!", replacementString = ""), /* Commented Section */
+
 				(=="#", 
-					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
-					replacementString = ""
+					/* Start of iterating Section */
+					call sender iteratingSection = getVariable(mustacheCapture removeAt(0), object)
+					replacementString := ""
 				),
-				(=="^", "Inverting section" println),
-				(==">", "Partial section" println),
-				(=="&", "Unescaped variable" println),
-				/* Default -- Variable */
+
+				(==".", 
+					/* Iteration in iterating section */
+					if (mustacheCapture size == 1, 
+						("Single iteration off of" .. iteratingSection)  println
+						iteration = iteration + 1
+						replacementString = iteratingSection at(iteration)
+					)
+				), 
+				(=="/", 
+					/* End of iterating section */
+					call sender iteratingSection := nil
+					call sender iteration = -1
+				),
+
+				(=="^", 
+					/* Start of inverted section */
+					"Inverting section" println),
+
+				(==">", 
+					/* Partial Section */
+					"Partial section" println),
+
+				(=="&", 
+					/* Unescaped variable */
+					"Unescaped variable" println),
+
 				(
+					/* Default -- Variable */
 					replacementString = getVariable(mustacheCapture,
 						block(if(iteratingSection != nil, iteratingSection, object)) call)
 				)
 			)
 
 			/* Remove the old mustache and pop in new replacement String */
-			string := string removeSlice(mustacheStart - delSize, mustacheEnd + delSize) \
-											 atInsertSeq(mustacheStart - delSize, replacementString)
+			string := string atInsertSeq(mustacheEnd + delSize + 1, replacementString)
 
+			if (iteratingSection != nil and iteration != iteratingSection size -1) then (
+				continue
+			)
+
+			string := string removeSlice(mustacheStart - delSize, mustacheEnd + delSize)
 			position = position + replacementString size 
 		)
 		string
 	)
 )
 
-
-
-tmpl := "I am the master template\n
-Here's Slot A:<{{slotA}}>\n
-And Slot B<{{slotB}}>\n
-And slot C<{{slotC}}>"
-
-obj := Object clone do(
-	slotA := "Yo I am the dope slot A"
-	slotB := "Man, I'm slot B"
-	slotC := "I'm C, better than all you slots"
+tmpl := "
+I am a Mustache {{guy}}
+I am {{age}} years old
+And my favorite color is {{color}}
+"
+obj  := Object clone do( 
+	guy := "Man" 
+	age := "32"
+	color := "Blue"
 )
+
+tmpl2 := "Simple iteration: {{#container}}{{.}}{{/container}}"
+obj2  := Object clone do( container := list("first", "second", "third") )
