@@ -1,6 +1,8 @@
 #!/usr/bin/env io
 Sequence charAt := method(pos, thisContext at(pos) asCharacter)
 Sequence isWhiteSpace := method(Sequence whiteSpaceStrings contains(thisContext))
+Sequence fromToEnd := method(i, if (i < self size and i > 0, 
+	return self exclusiveSlice(i, self size)) nil)
 
 /* Takes in switch statement in form of:
 	Sequence switcher((=="matchA", someCode), (=="matchB", someCode), defaultCode) */
@@ -54,12 +56,11 @@ Mustache := Object clone do(
 					while( f != nil,
 						capture := string exclusiveSlice( f + delSize, string findSeq(delimiters at(1), f)) strip
 						"Capture is [#{capture}] and mustache is [#{mustacheCapture}]" interpolate println
-						if (capture removeAt(0) == mustacheCapture removeAt(0)) then (
+						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
 							"Position is #{f} based on #{capture}" interpolate println
 							break
 						)
-						f := string findSeq(delimiters at (0), mustacheEnd)
-
+						f = string findSeq(delimiters at (0), mustacheEnd)
 					)
 					//sectionEnd := findSeq(
 					//section := inclusiveSlice(mustacheEnd, 
@@ -101,11 +102,9 @@ Mustache := Object clone do(
 					"Unescaped variable" println
 				)),
 
-				block(
-					"Default block" println
-					/* Default -- Variable */
-					replacementString = getVariable(mustacheCapture,
-						block(if(iteratingSection != nil, iteratingSection, object)) call)
+				block( /* Default -- Variable */
+					replacementString = getVariable(mustacheCapture, block(
+						if(iteratingSection != nil, iteratingSection, object)) call)
 				)
 			)
 
