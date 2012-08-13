@@ -87,7 +87,9 @@ Mustache := Object clone do(
 			/* Remove the old mustache and pop in new replacement String */
 			string := string atInsertSeq(mustacheEnd + delSize + 1, replacementString)
 
-			if (iteratingSection != nil and iteration != iteratingSection size -1) then (
+			if (iteratingSection != nil and 
+				(iteration != iteratingSection size -1) and (iteration != -1)) then (
+				"Not reseting the position" println
 				continue
 			)
 
