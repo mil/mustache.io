@@ -14,13 +14,17 @@ Object switcher := method( call message arguments foreach(index, case,
 ))
 
 Mustache := Object clone do(
-	delimiters := list("{{", "}}")
+	delimiters := list("{{", "}}"); delSize := delimiters at(0) size
+
 	setDelimiters := method(openDelimiter, closeDelimiter,
 		( openDelimiter containsSeq(" ") == false and
 			openDelimiter containsSeq("=") == false and
 			closeDelimiter containsSeq(" ") == false and
 			closeDelimiter containsSeq("=") == false
-		) ifTrue ( delimiters = list(openDelimiter, closeDelimiter))
+		) ifTrue ( 
+      delimiters = list(openDelimiter, closeDelimiter)
+      delSize    = delimiters at(0) size
+    )
 	)
 
 	/* Attemps to get the given variable stored in passed object */
@@ -30,19 +34,15 @@ Mustache := Object clone do(
 	)
 
 	render := method(string, object,
-		tokens := List clone
 		string := string asMutable	
-		position := 0; mustacheStart := nil
-		delSize := delimiters at(0) size
-		iteratingSection := nil
-		iteration := -1
+		position := 0; sliceStart := nil
 
 		replacementString := "" asMutable
 		/* Loop until we cant find another opening {{ */
-		while ((mustacheStart := string findSeq(delimiters at(0), position)) != nil,
-			mustacheStart   := mustacheStart + delSize
-			mustacheEnd     := string findSeq(delimiters at(1), mustacheStart) - 1
-			mustacheCapture := string inclusiveSlice(mustacheStart, mustacheEnd)  \
+		while ((sliceStart := string findSeq(delimiters at(0), position)) != nil,
+			sliceStart   := sliceStart + delSize
+			sliceEnd     := string findSeq(delimiters at(1), sliceStart) - 1
+			mustacheCapture := string inclusiveSlice(sliceStart, sliceEnd)  \
 				                        asMutable strip
 
 			/* Determine the replacement String */
@@ -50,8 +50,8 @@ Mustache := Object clone do(
 				(=="!", block( replacementString = "")), 
 				(=="#", block(
 					/* Start of iterating Section */
-					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
-					f := string findSeq(delimiters at (0), mustacheEnd)
+					iteratingSection := getVariable(mustacheCapture removeAt(0), object)
+					f := string findSeq(delimiters at (0), sliceEnd)
 					while( f != nil,
 						capture := string exclusiveSlice( 
 							f + delSize + 1, 
@@ -60,7 +60,7 @@ Mustache := Object clone do(
 
 						/* Found the matching end musetache */
 						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-							section := string exclusiveSlice(mustacheEnd + delSize + 1, f)
+							section := string exclusiveSlice(sliceEnd + delSize + 1, f)
 							if (iteratingSection type == "Object") then (
 								replacementString = Mustache render(section, iteratingSection)
 							) elseif(iteratingSection type == "List") then (
@@ -68,7 +68,7 @@ Mustache := Object clone do(
 									replacementString = replacementString .. Mustache render(section, iteration)
 								)
 							)
-							mustacheEnd = f + mustacheCapture size + delSize /* Move end at this will be chopped */
+							sliceEnd = f + mustacheCapture size + delSize /* Move end at this will be chopped */
 						)
 						f = string findSeq(delimiters at (0), f + delSize)
 					)	
@@ -83,14 +83,14 @@ Mustache := Object clone do(
 						"This is an inverted section, take no action"
 					) else (
 						"Inverted section shoudl not be displayed"
-						f := string findSeq(delimiters at(0), mustacheEnd)
+						f := string findSeq(delimiters at(0), sliceEnd)
 						while (f != nil,
 							capture := string exclusiveSlice( 
 								f + delSize + 1, 
 								string findSeq(delimiters at(1), f)
 							) strip
 							if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-								mustacheEnd = f + mustacheCapture size + delSize
+								sliceEnd = f + mustacheCapture size + delSize
 							)
 
 							f = string findSeq(delimiters at(0), f + delSize)
@@ -101,18 +101,23 @@ Mustache := Object clone do(
 				(=="&", block( "Unescaped variable" println)),
 
 				block( /* Default -- Variable */
-					replacementString = getVariable(mustacheCapture, block(
-						if(iteratingSection != nil, iteratingSection, object)) call) asString
+					replacementString = getVariable(mustacheCapture, object) asString
 				)
 			)
 
 			/* Remove the old mustache and pop in new replacement String */
-			string := string atInsertSeq(mustacheEnd + delSize + 1, replacementString)
-			string := string removeSlice(mustacheStart - delSize, mustacheEnd + delSize)
+			string := string atInsertSeq(sliceEnd + delSize + 1, replacementString)
+			string := string removeSlice(sliceStart - delSize, sliceEnd + delSize)
 
 			position = position + replacementString size 
 			replacementString = ""
 		)
+
+    init := method(
+      setDelimiters("{{", "}}")
+    )
+
+
 		string
 	)
 )
