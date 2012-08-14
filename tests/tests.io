@@ -10,7 +10,7 @@ test := method(name, evaluation, expect,
 )
 
 runTests := method(	
-	doFile("mustache.io")
+	doRelativeFile("../lib/mustache.io")
 	test("One Variable",
 		Mustache render("A single {{var}}", Object clone do(var := "substitution")),
 		"A single substitution"

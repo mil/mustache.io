@@ -15,7 +15,6 @@ Object switcher := method( call message arguments foreach(index, case,
 
 Mustache := Object clone do(
 	delimiters := list("{{", "}}")
-
 	setDelimiters := method(openDelimiter, closeDelimiter,
 		( openDelimiter containsSeq(" ") == false and
 			openDelimiter containsSeq("=") == false and
