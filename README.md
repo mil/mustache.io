@@ -5,6 +5,7 @@ Mustache is a logic-less templating system for HTML, config files, anything. Bas
 Usage
 -----
 **mustache.io** can be used either with Io Objects or Maps.
+
 `
 Mustache render("Hey {{man}}", Object := clone do( man := "John"))
 ==> Hey John
@@ -14,10 +15,12 @@ The Mustache Object
 -------------------
 Mustache
 	- **render(template, objectOrMap)**: Renders the given template
+	- **setDelimiters(openDelimiter, closeDelimiter)**: Changes the delimiters
 
 Supported Tags
 --------------
 ### Variables
+
 `template := "I am {{ name }}, age: {{ age }}"
 ==> I am {{ name }} age: {{ age }}
 object := Object clone do( name := "Miles"; age := 20 )
@@ -27,6 +30,5 @@ object := Object clone do( name := "Miles"; age := 20 )
 Mustache render(template, object)
 ==> I am Miles and I am 20
 `
-
 ### Sections
 
