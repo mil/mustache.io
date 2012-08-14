@@ -33,6 +33,12 @@ runTests := method(
 		"Some good ol substitution"
 	)
 
+	test("Non-False Values",
+		Mustache render("{{#person}}Hi {{name}}!{{/person}}",
+			Object clone do(person := Object clone do( name := "Jon"))), 
+		"Hi Jon!"
+	)
+
 	test("Iteration List",
 		Mustache render("I am {{name}} and here are my children:\n{{#children}}Mr.{{.}}!!!\n{{/children}}",
 			Object clone do(
