@@ -21,7 +21,8 @@ Supported Tags
 --------------
 ### Variables
 
-```template := "I am {{ name }}, age: {{ age }}"
+```
+template := "I am {{ name }}, age: {{ age }}"
 ==> I am {{ name }} age: {{ age }}
 object := Object clone do( name := "Miles"; age := 20 )
 ==> Object_0x18bb830
