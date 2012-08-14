@@ -40,17 +40,16 @@ Mustache := Object clone do(
 
 			/* Determine the replacement String */
 			mustacheCapture charAt(0) switcher(
-				(=="!", block(
-					/* Commented Section */
-					replacementString = ""
-				)), 
-
+				(=="!", block( replacementString = "")), 
 				(=="#", block(
 					/* Start of iterating Section */
 					iteratingSection = getVariable(mustacheCapture removeAt(0), object)
 					f := string findSeq(delimiters at (0), mustacheEnd)
 					while( f != nil,
-						capture := string exclusiveSlice( f + delSize + 1, string findSeq(delimiters at(1), f)) strip
+						capture := string exclusiveSlice( 
+							f + delSize + 1, 
+							string findSeq(delimiters at(1), f)
+						) strip
 
 						/* Found the matching end musetache */
 						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
@@ -68,18 +67,35 @@ Mustache := Object clone do(
 					)	
 				)),
 
-				(==".", block(
-					/* Iteration in iterating section */
-					if (mustacheCapture size == 1) then (replacementString = object)
-				)), 
+				(==".", block( if (mustacheCapture size == 1) then (replacementString = object))), 
 				(=="/", block( replacementString = "")),
-				(=="^", block( "Inverting section" println)),
+				(=="^", block( 
+					/* Inverted Section */
+					invertedSection := getVariable(mustacheCapture removeAt(0), object)
+					if (invertedSection == nil or invertedSection == false or invertedSection size == 0) then (
+						"This is an inverted section, take no action"
+					) else (
+						"Inverted section shoudl not be displayed"
+						f := string findSeq(delimiters at(0), mustacheEnd)
+						while (f != nil,
+							capture := string exclusiveSlice( 
+								f + delSize + 1, 
+								string findSeq(delimiters at(1), f)
+							) strip
+							if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
+								mustacheEnd = f + mustacheCapture size + delSize
+							)
+
+							f = string findSeq(delimiters at(0), f + delSize)
+						)
+					)	
+				)),
 				(==">", block( "Partial section" println)),
 				(=="&", block( "Unescaped variable" println)),
 
 				block( /* Default -- Variable */
 					replacementString = getVariable(mustacheCapture, block(
-						if(iteratingSection != nil, iteratingSection, object)) call)
+						if(iteratingSection != nil, iteratingSection, object)) call) asString
 				)
 			)
 

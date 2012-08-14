@@ -33,9 +33,6 @@ runTests := method(
 		"Some good ol substitution"
 	)
 
-
-
-
 	test("Iteration List",
 		Mustache render("I am {{name}} and here are my children:\n{{#children}}Mr.{{.}}!!!\n{{/children}}",
 			Object clone do(
@@ -44,6 +41,52 @@ runTests := method(
 			)), 
 		"I am Wiggles and here are my children:\nMr.Wiggleface!!!\nMr.Wiggler!!!\nMr.Wighton!!!\n"
 	)
+
+	test("Iteration List with Object Nest",
+		Mustache render("I am {{name}} and here are my children:\n{{#children}}I'm Mr.{{surname}}, {{age}}!\n{{/children}}",
+			Object clone do(
+				name := "Wiggles"
+				children := list(
+					Object clone do(
+						surname := "Wiggleface"
+						age := 14	
+					), 
+					Object clone do(
+						surname := "Wiggler"
+						age := 24
+					),
+					Object clone do(
+						surname := "Wighton"
+						age := 18
+					)
+				)
+			)), 
+		"I am Wiggles and here are my children:\nI'm Mr.Wiggleface, 14!\nI'm Mr.Wiggler, 24!\nI'm Mr.Wighton, 18!\n"
+	)
+
+
+	test("Inverted Section - Nil Reference",
+		Mustache render("Is this section {{^section}}empty?{{/section}}",
+			Object clone do()), 
+		"Is this section empty?"
+	)
+
+
+	test("Inverted Section - List Unpopulated",
+		Mustache render("Is this section {{^section}}empty?{{/section}}",
+			Object clone do(section := list())), 
+		"Is this section empty?"
+	)
+
+	test("Inverted Section - List Populated",
+		Mustache render("Is this section {{^section}}empty?{{/section}}",
+			Object clone do(section := list("a", "b", "c"))), 
+		"Is this section "
+	)
+
+
+
+
 
 	true
 )
