@@ -16,6 +16,14 @@ Object switcher := method( call message arguments foreach(index, case,
 Mustache := Object clone do(
 	delimiters := list("{{", "}}")
 
+	setDelimiters := method(openDelimiter, closeDelimiter,
+		( openDelimiter containsSeq(" ") == false and
+			openDelimiter containsSeq("=") == false and
+			closeDelimiter containsSeq(" ") == false and
+			closeDelimiter containsSeq("=") == false
+		) ifTrue ( delimiters = list(openDelimiter, closeDelimiter))
+	)
+
 	/* Attemps to get the given variable stored in passed object */
 	getVariable := method(variable, object,
 		slotReturn := object getSlot(variable)
