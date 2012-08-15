@@ -1,8 +1,7 @@
 #!/usr/bin/env io
 Sequence charAt := method(pos, thisContext at(pos) asCharacter)
-Sequence isWhiteSpace := method(Sequence whiteSpaceStrings contains(thisContext))
-Sequence fromToEnd := method(i, if (i < self size and i > 0, 
-	return self exclusiveSlice(i, self size)) nil)
+Sequence fromToEnd := method(i, 
+  return (if (i < self size and i > 0,  self exclusiveSlice(i, self size), nil) ))
 
 /* Takes in switch statement in form of:
 	Sequence switcher((=="matchA", someCode), (=="matchB", someCode), defaultCode) */
@@ -16,6 +15,7 @@ Object switcher := method( call message arguments foreach(index, case,
 Mustache := Object clone do(
 	delimiters := list("{{", "}}"); delSize := delimiters at(0) size
 
+  /* Change the delimiters used for render */
 	setDelimiters := method(openDelimiter, closeDelimiter,
 		( openDelimiter containsSeq(" ") == false and
 			openDelimiter containsSeq("=") == false and
@@ -30,8 +30,15 @@ Mustache := Object clone do(
 	/* Attemps to get the given variable stored in passed object */
 	getVariable := method(variable, object,
 		slotReturn := object getSlot(variable)
-		if (slotReturn != nil, if (slotReturn type == "Block",  "block" , return slotReturn ))
+    return (if (slotReturn != nil,
+      slotReturn (if(slotReturn type == "Block", call, nil)), nil
+    ))
 	)
+
+  getMustache := method(start, string,
+    start = start + delSize + 1
+    string exclusiveSlice(start, string findSeq(delimiters at(1), start)) strip
+  )
 
   renderSection := method(sectionName, startPosition, parentObject, string,
     replacementString := ""
@@ -40,10 +47,7 @@ Mustache := Object clone do(
     iteratingSection := getVariable(sectionName removeAt(0), parentObject)
     f := string findSeq(delimiters at (0), startPosition)
     while( f != nil,
-      mustacheEndMatch := string exclusiveSlice( 
-        f + delSize + 1, 
-        string findSeq(delimiters at(1), f)
-      ) strip
+      mustacheEndMatch := getMustache(f, string)
 
       /* Found the matching end musetache */
       if (mustacheEndMatch fromToEnd(1) == sectionName fromToEnd(1)) then (
@@ -70,7 +74,7 @@ Mustache := Object clone do(
 		replacementString := "" asMutable
 
 		/* Loop until we cant find another opening {{ */
-		while ((sliceStart := string findSeq(delimiters at(0), position)) != nil,
+		while ((sliceStart := string findSeq(delimiters at(0), position)),
 			sliceStart   := sliceStart + delSize
 			sliceEnd     := string findSeq(delimiters at(1), sliceStart) - 1
 			mustacheCapture := string inclusiveSlice(sliceStart, sliceEnd)  \
@@ -88,25 +92,20 @@ Mustache := Object clone do(
 				(==".", block( if (mustacheCapture size == 1) then (replacementString = object))), 
 				(=="/", block( replacementString = "")),
 				(=="^", block( 
-					/* Inverted Section */
-					invertedSection := getVariable(mustacheCapture removeAt(0), object)
-					if (invertedSection != false and invertedSection size != 0) then (
+          (
+            list(nil, list()) contains( 
+            getVariable(mustacheCapture removeAt(0), object)) 
+          ) ifFalse (
 						nextMustacheOpen := string findSeq(delimiters at(0), sliceEnd)
-						while (nextMustacheOpen != nil,
-              /* Capture closing tags until we find the matching cosing tag */
-							capture := string exclusiveSlice(nextMustacheOpen + delSize + 1, 
-								string findSeq(delimiters at(1), nextMustacheOpen)) strip
-
-              /* Advance the slice end to the closing capture if so */
-							if (capture fromToEnd(1) == mustacheCapture fromToEnd(1),
+						while (nextMustacheOpen,
+              (getMustache(nextMustacheOpen, string) fromToEnd(1) == 
+               mustacheCapture fromToEnd(1)) ifTrue (
 								sliceEnd = nextMustacheOpen + mustacheCapture size + delSize;
                 break;
 							)
-
-              /* Didn't find try again */
 							nextMustacheOpen = string findSeq(delimiters at(0), nextMustacheOpen + delSize)
 						)
-					)	
+					)
 				)),
 				(==">", block( "Partial section" println)),
 				(=="&", block( "Unescaped variable" println)),
