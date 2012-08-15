@@ -30,14 +30,45 @@ Mustache := Object clone do(
 	/* Attemps to get the given variable stored in passed object */
 	getVariable := method(variable, object,
 		slotReturn := object getSlot(variable)
-		if (slotReturn != nil, if (slotReturn type == "Block",  "block" , slotReturn ))
+		if (slotReturn != nil, if (slotReturn type == "Block",  "block" , return slotReturn ))
 	)
+
+  renderSection := method(sectionName, startPosition, parentObject, string,
+    replacementString := ""
+
+    /* Start of iterating Section */
+    iteratingSection := getVariable(sectionName removeAt(0), parentObject)
+    f := string findSeq(delimiters at (0), startPosition)
+    while( f != nil,
+      mustacheEndMatch := string exclusiveSlice( 
+        f + delSize + 1, 
+        string findSeq(delimiters at(1), f)
+      ) strip
+
+      /* Found the matching end musetache */
+      if (mustacheEndMatch fromToEnd(1) == sectionName fromToEnd(1)) then (
+        section := string exclusiveSlice(startPosition + delSize + 1, f)
+        if (iteratingSection type == "Object") then (
+          replacementString = Mustache render(section, iteratingSection)
+        ) elseif(iteratingSection type == "List") then (
+          iteratingSection foreach(iteration,
+            replacementString = replacementString .. Mustache render(section, iteration)
+          )
+        )
+        startPosition = f + sectionName size + delSize /* Move end at this will be chopped */
+      )
+      f = string findSeq(delimiters at (0), f + delSize)
+    )	
+
+    return list(replacementString, startPosition)
+  )
+
 
 	render := method(string, object,
 		string := string asMutable	
 		position := 0; sliceStart := nil
-
 		replacementString := "" asMutable
+
 		/* Loop until we cant find another opening {{ */
 		while ((sliceStart := string findSeq(delimiters at(0), position)) != nil,
 			sliceStart   := sliceStart + delSize
@@ -48,52 +79,32 @@ Mustache := Object clone do(
 			/* Determine the replacement String */
 			mustacheCapture charAt(0) switcher(
 				(=="!", block( replacementString = "")), 
-				(=="#", block(
-					/* Start of iterating Section */
-					iteratingSection := getVariable(mustacheCapture removeAt(0), object)
-					f := string findSeq(delimiters at (0), sliceEnd)
-					while( f != nil,
-						capture := string exclusiveSlice( 
-							f + delSize + 1, 
-							string findSeq(delimiters at(1), f)
-						) strip
-
-						/* Found the matching end musetache */
-						if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-							section := string exclusiveSlice(sliceEnd + delSize + 1, f)
-							if (iteratingSection type == "Object") then (
-								replacementString = Mustache render(section, iteratingSection)
-							) elseif(iteratingSection type == "List") then (
-								iteratingSection foreach(iteration,
-									replacementString = replacementString .. Mustache render(section, iteration)
-								)
-							)
-							sliceEnd = f + mustacheCapture size + delSize /* Move end at this will be chopped */
-						)
-						f = string findSeq(delimiters at (0), f + delSize)
-					)	
-				)),
+				(=="#", block( 
+          ret := renderSection(mustacheCapture, sliceEnd, object, string) 
+          replacementString = ret at(0)
+          sliceEnd = ret at(1)
+        )),
 
 				(==".", block( if (mustacheCapture size == 1) then (replacementString = object))), 
 				(=="/", block( replacementString = "")),
 				(=="^", block( 
 					/* Inverted Section */
 					invertedSection := getVariable(mustacheCapture removeAt(0), object)
-					if (invertedSection == nil or invertedSection == false or invertedSection size == 0) then (
-						"This is an inverted section, take no action"
-					) else (
-						"Inverted section shoudl not be displayed"
-						f := string findSeq(delimiters at(0), sliceEnd)
-						while (f != nil,
-							capture := string exclusiveSlice( 
-								f + delSize + 1, 
-								string findSeq(delimiters at(1), f)
-							) strip
-							if (capture fromToEnd(1) == mustacheCapture fromToEnd(1)) then (
-								sliceEnd = f + mustacheCapture size + delSize
+					if (invertedSection != false and invertedSection size != 0) then (
+						nextMustacheOpen := string findSeq(delimiters at(0), sliceEnd)
+						while (nextMustacheOpen != nil,
+              /* Capture closing tags until we find the matching cosing tag */
+							capture := string exclusiveSlice(nextMustacheOpen + delSize + 1, 
+								string findSeq(delimiters at(1), nextMustacheOpen)) strip
+
+              /* Advance the slice end to the closing capture if so */
+							if (capture fromToEnd(1) == mustacheCapture fromToEnd(1),
+								sliceEnd = nextMustacheOpen + mustacheCapture size + delSize;
+                break;
 							)
 
-							f = string findSeq(delimiters at(0), f + delSize)
+              /* Didn't find try again */
+							nextMustacheOpen = string findSeq(delimiters at(0), nextMustacheOpen + delSize)
 						)
 					)	
 				)),
@@ -116,7 +127,6 @@ Mustache := Object clone do(
     init := method(
       setDelimiters("{{", "}}")
     )
-
 
 		string
 	)

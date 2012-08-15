@@ -1,7 +1,7 @@
 #!/usr/bin/env io
 test := method(name, evaluation, expect,
 	result := "[31mFAILED[0m"
-	if (evaluation == expect, result = "[32mPASS[0m")
+	if (evaluation == expect, result = "[32mPASS  [0m")
 	"#{result} [ #{name} ]" asMutable interpolateInPlace println
 	if (result == "[31mFAILED[0m", 
 		"\tExpected : #{expect}\n\tEvaluated: #{evaluation}" \
