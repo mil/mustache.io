@@ -2,14 +2,14 @@ mustache.io - {{mustache }} logicless templating for Io
 =======================================================
 Mustache is a logic-less templating system for HTML, config files, anything. Basically Mustache provides a way to cleanly render logic-free templates in a framework agnostic manner. 
 
-**mustache.io** is a port of the Mustache templating to the Io language. mustache.io can be used either with Io Objects or Maps. See `tests/tests.io` for all the ways in which Maps and Objects can be used. **mustache.io** is capable of handling nesting and also Maps within Hashes and visa-versa.
+`mustache.io` is a port of Mustache templating to the Io language. mustache.io can be used to render Mustache templates with either Io Objects or Maps. See `tests/tests.io` for all the ways in which Maps and Objects can be used. `mustache.io` is capable of handling nesting and also Maps within Hashes and visa-versa.
 
-You may load the `mustache.io` file with doFile("/path/to/mustache.io"). Once loaded, the Mustache singleton object is available to you. The Mustache object may 
+You may load the `mustache.io` file with `doFile("/path/to/mustache.io")` within your Io program. Once loaded, the Mustache singleton object is available to you. The Mustache object may be used as described below in **Usage**.
 
 Usage
 -----
 ### Mustache **render** ***(template, objectOrMap, optionalPartialsObjectOrMap)***
-Renders the given template with the provided objectOrMap. If the provided may be either a String or a File.
+Renders the given template with the provided objectOrMap. Takes an optional argument of a partials object/map. The provided template may be either a String or a File (which will be read).
 
 ```
 Mustache render("Hey {{man}}", Object clone do( man := "John"))
@@ -125,3 +125,6 @@ I am Miles and I drink coffee...
 I am Wiggles and I drink whiskey and gin...
 ```
 
+Contributing
+------------
+Feel free to put in an issue or send me a pull request.
