@@ -1,30 +1,34 @@
 mustache.io - {{ mustache }} logicless templating for Io
 ========================================================
-Mustache is a logic-less templating system for HTML, config files, anything. Basically Mustache provides a way to cleanly render logic-free templates in a framework agnostic manner. 
+Like Mustache? Like Io? How about Mustache in Io? I call it mustache.io, although I also think the name mustachio would have been good. I'm not positive that's a real word though.
 
-`mustache.io` is a port of Mustache templating to the Io language. mustache.io can be used to render Mustache templates with either Io Objects or Maps. See `tests/tests.io` for all the ways in which Maps and Objects can be used. `mustache.io` is capable of handling nesting and also Maps within Hashes and visa-versa.
+`mustache.io` is a port of Mustache templating to the Io language. mustache.io can be used to render Mustache templates with either Io Objects or Maps. See `tests/tests.io` or the supported tags section below for all the ways in which `mustache.io` can be used. `mustache.io` is capable of handling nesting of maps within objects, within maps, and any other combination of objects and maps you would dream of. Ofcourse you can just use maps within maps or objects within objects too.
 
-You may load the `mustache.io` file with `doFile("/path/to/mustache.io")` within your Io program. Once loaded, the Mustache singleton object is available to you. The Mustache object may be used as described below in **Usage**.
+You may load the `mustache.io` file with `doFile("/path/to/mustache.io")` within your Io program. Once loaded, the Mustache singleton object is available to you. The `Mustache` object may be used as described below in **Usage**.
 
 Usage
 -----
-### Mustache **render** ***(template, objectOrMap, optionalPartialsObjectOrMap)***
-Renders the given template with the provided objectOrMap. Takes an optional argument of a partials object/map. The provided template may be either a String or a File (which will be read).
+### Mustache **render** ***(template, objectOrMap, partialsMapOrObject)***
+Renders the given `template` with the provided `objectOrMap`. Takes an *optional argument* of a `partialsMapOrObject`. The provided `template` may be either a `String` or a `File` (which will be read).
 
+With an `Object`:
 ```
 Mustache render("Hey {{man}}", Object clone do( man := "John"))
 ==> Hey John
 ```
 
+Or with a `Map`:
 ```
 Mustache render("Hey {{man}}", Map clone do( atPut("man", "John")))
 ==> Hey John
 ```
+
 ### Mustache **setDelimiters** ***(openDelimiter, closeDelimiter)***
-Changes the delimiters from the default {{ }} mustaches. The provided delimiters must not contains whitespaces or the = character.
+Changes the delimiters from the default `{{ }}` mustaches. The provided delimiters must not contains whitespaces or the = character. Returns true if the delimiters were successfully set or false if not.
 
 ```
 Mustache setDelimiters("[[", "]]")
+==> true
 ```
 
 
