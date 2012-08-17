@@ -121,7 +121,18 @@ runTests := method(
 
 
 
-
+	test("Basic Partials",
+		Mustache render(
+      "{{#people}}I am {{name}} and I {{>action}}... {{/people}}",
+			Object clone do(
+        people := list(
+          Object clone do( name := "Miles"; drink := "coffee" ),
+          Object clone do( name := "Wiggles"; drink := "whiskey and gin" )
+        )
+      ),
+      Object clone do( action := "drink {{ drink }}" )),
+      "I am Miles and I drink coffee... I am Wiggles and I drink whiskey and gin... "  
+	)
 
 	true
 )

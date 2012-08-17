@@ -8,7 +8,7 @@ You may load the `mustache.io` file with doFile("/path/to/mustache.io"). Once lo
 
 Usage
 -----
-### Mustache **render** ***(template, objectOrMap)***
+### Mustache **render** ***(template, objectOrMap, optionalPartialsObjectOrMap)***
 Renders the given template with the provided objectOrMap. If the provided may be either a String or a File.
 
 ```

@@ -58,7 +58,7 @@ Mustache := Object clone do(
     string exclusiveSlice(start, string findSeq(delimiters at(1), start)) strip
   )
 
-  renderSection := method(sectionName, startPosition, parentObject, string,
+  renderSection := method(sectionName, startPosition, parentObject, partials, string,
     replacementString := ""
 
     /* Start of iterating Section */
@@ -73,7 +73,7 @@ Mustache := Object clone do(
         if (iteratingSection type == "Object" or
             iteratingSection type == "Map") then ( iteratingSection = list(iteratingSection) )
         if(iteratingSection type == "List")    then ( iteratingSection foreach(iteration,
-            replacementString = replacementString .. Mustache render(section, iteration)
+            replacementString = replacementString .. Mustache render(section, iteration, partials)
         ))
         startPosition = f + sectionName size + delSize /* Move end at this will be chopped */
       )
@@ -84,7 +84,7 @@ Mustache := Object clone do(
   )
 
 
-  render := method(string, object,
+  render := method(string, object, partials,
     string := string asMutable  
     position := 0; sliceStart := nil
     replacementString := "" asMutable 
@@ -99,7 +99,7 @@ Mustache := Object clone do(
       mustacheCapture charAt(0) switcher(
         (=="!", block( replacementString = "")), 
         (=="#", block( 
-          ret := renderSection(mustacheCapture, sliceEnd, object, string) 
+          ret := renderSection(mustacheCapture, sliceEnd, object, partials, string) 
           replacementString = ret at(0)
           sliceEnd = ret at(1)
         )),
@@ -122,7 +122,11 @@ Mustache := Object clone do(
             )
           )
         )),
-        (==">", block( "Partial section" println)),
+        (==">", block( 
+          if (partials) then (
+            replacementString = getVariable(mustacheCapture removeAt(0), partials) asString
+          ) 
+        )),
         (=="&", block( "Unescaped variable" println)),
 
         block( /* Default -- Variable */
