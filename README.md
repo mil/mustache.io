@@ -1,5 +1,5 @@
-mustache.io - {{mustache }} logicless templating for Io
-=======================================================
+mustache.io - {{ mustache }} logicless templating for Io
+========================================================
 Mustache is a logic-less templating system for HTML, config files, anything. Basically Mustache provides a way to cleanly render logic-free templates in a framework agnostic manner. 
 
 `mustache.io` is a port of Mustache templating to the Io language. mustache.io can be used to render Mustache templates with either Io Objects or Maps. See `tests/tests.io` for all the ways in which Maps and Objects can be used. `mustache.io` is capable of handling nesting and also Maps within Hashes and visa-versa.
