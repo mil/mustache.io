@@ -52,13 +52,10 @@ Mustache := Object clone do(
       /* Found the matching end musetache */
       if (mustacheEndMatch fromToEnd(1) == sectionName fromToEnd(1)) then (
         section := string exclusiveSlice(startPosition + delSize + 1, f)
-        if (iteratingSection type == "Object") then (
-          replacementString = Mustache render(section, iteratingSection)
-        ) elseif(iteratingSection type == "List") then (
-          iteratingSection foreach(iteration,
+        if (iteratingSection type == "Object") then ( iteratingSection = list(iteratingSection) )
+        if(iteratingSection type == "List")    then ( iteratingSection foreach(iteration,
             replacementString = replacementString .. Mustache render(section, iteration)
-          )
-        )
+        ))
         startPosition = f + sectionName size + delSize /* Move end at this will be chopped */
       )
       f = string findSeq(delimiters at (0), f + delSize)
@@ -116,17 +113,15 @@ Mustache := Object clone do(
       )
 
       /* Remove the old mustache and pop in new replacement String */
-      string := string atInsertSeq(sliceEnd + delSize + 1, replacementString)
-      string := string removeSlice(sliceStart - delSize, sliceEnd + delSize)
-
-      position = position + replacementString size 
-      replacementString = ""
+      string = string atInsertSeq(sliceEnd + delSize + 1, replacementString) \
+                      removeSlice(sliceStart - delSize, sliceEnd + delSize)
+      /* Advance the position */
+      position = position + replacementString size; replacementString = ""
     )
 
     init := method(
       setDelimiters("{{", "}}")
     )
-
-    string
+    string /* Return */
   )
 )

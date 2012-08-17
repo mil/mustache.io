@@ -30,14 +30,50 @@ Supported Tags
 ```
 Object clone do(
   name := "Miles"
-  age := 20 
+  age  := 20 
 )
 ```
 
-Mustache **render**
+Mustache **render**:
 ```
 I am Miles and I am 20
 ```
 
 ### Sections
 
+**Template**:
+```
+I am {{ name }} and I like: {{ #likes }}{{.}}, {{ /likes }}
+```
+
+**Object**:
+```
+Object clone do(
+  name  := Miles
+  likes := list("coffee", "granola", "beer")
+)
+```
+
+Mustache **render**:
+```
+I am Miles and I like: coffee, granola, beer
+```
+
+### Inverted Sections
+
+**Template**:
+```
+My interests include: {{#interests}}.{{/interests}}{{^interests}}Absolutely Nothing!!!!{{/interests}}
+```
+
+**Object**:
+```
+Object clone do(
+  interests := list()
+)
+```
+
+Mustache **render**:
+```
+My interests include: Absolutely Nothing!!!!
+````
