@@ -13,7 +13,13 @@ Object switcher := method( call message arguments foreach(index, case,
 ))
 
 Mustache := Object clone do(
-  delimiters := list("{{", "}}"); delSize := delimiters at(0) size
+  delimiters := nil; delSize := nil
+
+  init := method(
+    "Init was called" println
+    setDelimiters("{{", "}}")
+  )
+
 
   /* Change the delimiters used for render */
   setDelimiters := method(openDelimiter, closeDelimiter,
@@ -118,10 +124,8 @@ Mustache := Object clone do(
       /* Advance the position */
       position = position + replacementString size; replacementString = ""
     )
-
-    init := method(
-      setDelimiters("{{", "}}")
-    )
     string /* Return */
   )
+
+  init
 )
