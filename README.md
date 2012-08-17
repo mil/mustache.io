@@ -1,6 +1,6 @@
 mustache.io - {{ mustache }} logicless templating for Io
 ========================================================
-Like [Mustache](http://mustache.github.com}? Like [Io](http://iolanguage.com)? How about Mustache in Io? I call it `mustache.io`, although I also think the name mustachio would have been good. I'm not positive that's a real word though.
+Like [Mustache](http://mustache.github.com)? Like [Io](http://iolanguage.com)? How about Mustache in Io? I call it `mustache.io`, although I also think the name mustachio would have also been good. I'm not positive that's a real word though.
 
 `mustache.io` is a port of Mustache Templating to the Io Language. mustache.io can be used to render Mustache templates with either Io `Objects` or `Maps`. See `tests/tests.io` or the supported tags section below for all the ways in which `mustache.io` can be used. `mustache.io` is capable of handling nesting of maps within objects, within maps, and any other combination of object and map nesting you might be able to dream of. Ofcourse, you can use just straight maps within maps or objects within objects too.
 
