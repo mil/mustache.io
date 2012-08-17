@@ -1,4 +1,4 @@
-mustache.io - {{ mustache }} logicless templating for Io
+mustache.io - {{ Mustache }} Logicless Templating for Io
 ========================================================
 Like [Mustache](http://mustache.github.com)? Like [Io](http://iolanguage.com)? How about Mustache in Io? I call it `mustache.io`, although I also think the name mustachio would have also been good. I'm not positive that's a real word though.
 
