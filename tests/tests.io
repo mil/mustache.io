@@ -11,33 +11,62 @@ test := method(name, evaluation, expect,
 
 runTests := method(	
 	doRelativeFile("../lib/mustache.io")
-	test("One Variable",
+	test("Object: One Variable",
 		Mustache render("A single {{var}}", Object clone do(var := "substitution")),
 		"A single substitution"
 	)
-
+  test("Map: One Variable",
+		Mustache render("A single {{var}}", Map clone do(atPut("var","substitution"))),
+		"A single substitution"
+	)
 	
-	test("Two Variables",
+	test("Object: Two Variables",
 		Mustache render("Another {{var}} {{var2}}", Object clone do(
 			var := "substitution"
 			var2 := "sub2"
 		)),
 		"Another substitution sub2"
 	)
+	
+	test("Map: Two Variables",
+		Mustache render("Another {{var}} {{var2}}", Map clone do(
+			atPut("var", "substitution")
+			atPut("var2", "sub2")
+		)),
+		"Another substitution sub2"
+	)
+
 
 	
-	test("Variable and a Comment",
+	test("Object: Variable and a Comment",
 		Mustache render("Some good ol {{var}}{{!and a comment}}", Object clone do(
 			var := "substitution"
 		)),
 		"Some good ol substitution"
 	)
 
-	test("Non-False Values",
+	
+	test("Map: Variable and a Comment",
+		Mustache render("Some good ol {{var}}{{!and a comment}}", Map clone do(
+			atPut("var", "substitution")
+		)),
+		"Some good ol substitution"
+	)
+
+	test("Object: Non-False Values",
 		Mustache render("{{#person}}Hi {{name}}!{{/person}}",
 			Object clone do(person := Object clone do( name := "Jon"))), 
 		"Hi Jon!"
 	)
+
+
+	test("Map: Non-False Values",
+		Mustache render("{{#person}}Hi {{name}}!{{/person}}",
+			Map clone do(atPut("person", Map clone do( atPut("name", "Jon"))))), 
+		"Hi Jon!"
+	)
+
+
 
 	test("Iteration List",
 		Mustache render("I am {{name}} and here are my children:\n{{#children}}Mr.{{.}}!!!\n{{/children}}",

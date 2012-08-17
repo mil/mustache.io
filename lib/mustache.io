@@ -13,14 +13,20 @@ Object switcher := method( call message arguments foreach(index, case,
 ))
 
 Mustache := Object clone do(
-  delimiters := nil; delSize := nil
+  delimiters := list("{{", "}}"); delSize := delimiters at(0) size 
+  clone := method(self) /* Singleton */
 
-  init := method(
-    "Init was called" println
-    setDelimiters("{{", "}}")
+  escapeHtml := method(string,
+    string := string asMutable replaceMap(Map clone do(
+      atPut("<" , "&lt;"  )
+      atPut(">" , "&gt;"  )
+      atPut("\"", "&quot;")
+      atPut("'" , "&#39;" )
+      atPut("/" , "&#x2F;")
+      atPut("&" , "&amp;" )
+    ))
   )
-
-
+  
   /* Change the delimiters used for render */
   setDelimiters := method(openDelimiter, closeDelimiter,
     ( openDelimiter containsSeq(" ") == false and
@@ -34,10 +40,16 @@ Mustache := Object clone do(
   )
 
   /* Attemps to get the given variable stored in passed object */
-  getVariable := method(variable, object,
-    slotReturn := object getSlot(variable)
-    return (if (slotReturn != nil,
-      slotReturn (if(slotReturn type == "Block", call, nil)), nil
+  getVariable := method(variable, objectOrMap,
+    returnValue := nil
+    if (objectOrMap type == "Map") then (  
+      returnValue = objectOrMap at(variable)
+    ) elseif (objectOrMap type == "Object") then (
+      returnValue = objectOrMap getSlot(variable)
+    )
+
+    return (if (returnValue,
+      returnValue (if(returnValue type == "Block", call, nil)), nil
     ))
   )
 
@@ -58,7 +70,8 @@ Mustache := Object clone do(
       /* Found the matching end musetache */
       if (mustacheEndMatch fromToEnd(1) == sectionName fromToEnd(1)) then (
         section := string exclusiveSlice(startPosition + delSize + 1, f)
-        if (iteratingSection type == "Object") then ( iteratingSection = list(iteratingSection) )
+        if (iteratingSection type == "Object" or
+            iteratingSection type == "Map") then ( iteratingSection = list(iteratingSection) )
         if(iteratingSection type == "List")    then ( iteratingSection foreach(iteration,
             replacementString = replacementString .. Mustache render(section, iteration)
         ))
@@ -74,8 +87,7 @@ Mustache := Object clone do(
   render := method(string, object,
     string := string asMutable  
     position := 0; sliceStart := nil
-    replacementString := "" asMutable
-
+    replacementString := "" asMutable 
     /* Loop until we cant find another opening {{ */
     while ((sliceStart := string findSeq(delimiters at(0), position)),
       sliceStart   := sliceStart + delSize
@@ -126,6 +138,4 @@ Mustache := Object clone do(
     )
     string /* Return */
   )
-
-  init
 )
