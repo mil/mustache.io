@@ -1,8 +1,8 @@
 mustache.io - {{ mustache }} logicless templating for Io
 ========================================================
-Like Mustache? Like Io? How about Mustache in Io? I call it mustache.io, although I also think the name mustachio would have been good. I'm not positive that's a real word though.
+Like [Mustache](http://mustache.github.com}? Like [Io](http://iolanguage.com)? How about Mustache in Io? I call it `mustache.io`, although I also think the name mustachio would have been good. I'm not positive that's a real word though.
 
-`mustache.io` is a port of Mustache templating to the Io language. mustache.io can be used to render Mustache templates with either Io Objects or Maps. See `tests/tests.io` or the supported tags section below for all the ways in which `mustache.io` can be used. `mustache.io` is capable of handling nesting of maps within objects, within maps, and any other combination of objects and maps you would dream of. Ofcourse you can just use maps within maps or objects within objects too.
+`mustache.io` is a port of Mustache Templating to the Io Language. mustache.io can be used to render Mustache templates with either Io `Objects` or `Maps`. See `tests/tests.io` or the supported tags section below for all the ways in which `mustache.io` can be used. `mustache.io` is capable of handling nesting of maps within objects, within maps, and any other combination of object and map nesting you might be able to dream of. Ofcourse, you can use just straight maps within maps or objects within objects too.
 
 You may load the `mustache.io` file with `doFile("/path/to/mustache.io")` within your Io program. Once loaded, the Mustache singleton object is available to you. The `Mustache` object may be used as described below in **Usage**.
 
@@ -91,6 +91,23 @@ Object clone do(
 Mustache **render**:
 ```
 My interests include: Absolutely Nothing!!!!
+```
+
+### Comments 
+
+**Template**:
+```
+I am a Mustache Template {{! With a comment that'll never be rendered }}
+```
+
+**Object**:
+```
+Object clone do()
+```
+
+Mustache **render**:
+```
+I am a Mustache Template 
 ```
 
 ### Partials
