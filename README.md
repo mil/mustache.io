@@ -51,7 +51,7 @@ Object clone do(
 
 Mustache **render**:
 ```
-I am Miles and I am 20
+I am Miles, age: 20
 ```
 
 ### Sections
