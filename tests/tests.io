@@ -119,9 +119,35 @@ runTests := method(
 		"Is this section "
 	)
 
+	test("Escaped HTML",
+		Mustache render(
+      "I am going to escape this {{variable}}",
+			Object clone do( variable := "<, >, \, ', /, &")
+    ),
+    "I am going to escape this &lt;, &gt;, &quot;, &#39;, &#x2F;, &amp; "  
+	)
+
+	test("Un-Escaped HTML",
+		Mustache render(
+      "I am not going to escape this {{&variable}}",
+			Object clone do( variable := "<, >, \, ', /, &")
+    ),
+    "I am not going to escape this <, >, \, ', /, &"
+	)
+
+	test("Simple Partials",
+		Mustache render(
+      "I am a {{ >thing }}",
+			Object clone do(
+        what := "lamp"
+      ),
+      Object clone do( thing := "bright {{ what }}" )
+    ),
+    "I am a bright lamp"  
+	)
 
 
-	test("Basic Partials",
+	test("Iterated Partials",
 		Mustache render(
       "{{#people}}I am {{name}} and I {{>action}}... {{/people}}",
 			Object clone do(
@@ -130,8 +156,9 @@ runTests := method(
           Object clone do( name := "Wiggles"; drink := "whiskey and gin" )
         )
       ),
-      Object clone do( action := "drink {{ drink }}" )),
-      "I am Miles and I drink coffee... I am Wiggles and I drink whiskey and gin... "  
+      Object clone do( action := "drink {{ drink }}" )
+    ),
+    "I am Miles and I drink coffee... I am Wiggles and I drink whiskey and gin... "  
 	)
 
 	true

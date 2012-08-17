@@ -104,7 +104,7 @@ Mustache := Object clone do(
           sliceEnd = ret at(1)
         )),
 
-        (==".", block( if (mustacheCapture size == 1) then (replacementString = object))), 
+        (==".", block( if (mustacheCapture size == 1) then (replacementString = escapeHtml(object)))), 
         (=="/", block( replacementString = "")),
         (=="^", block( 
           (
@@ -127,10 +127,14 @@ Mustache := Object clone do(
             replacementString = getVariable(mustacheCapture removeAt(0), partials) asString
           ) 
         )),
-        (=="&", block( "Unescaped variable" println)),
+        (=="&", block(
+          replacementString = getVariable(mustacheCapture removeAt(0), object) asString
+          
+        
+        )),
 
         block( /* Default -- Variable */
-          replacementString = getVariable(mustacheCapture, object) asString
+          replacementString = escapeHtml(getVariable(mustacheCapture, object) asString)
         )
       )
 
