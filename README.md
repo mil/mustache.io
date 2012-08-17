@@ -87,4 +87,41 @@ Object clone do(
 Mustache **render**:
 ```
 My interests include: Absolutely Nothing!!!!
-````
+```
+
+### Partials
+
+**Template**:
+```
+{{#people}}
+I am {{name}} and I {{>action}}...
+{{/people}}
+```
+
+**Object**:
+```
+Object clone do(
+  people := list(
+    Object clone do(
+      name := "Miles"; drink := "coffee"
+    ),
+    Object clone do(
+      name := "Wiggles"; drink := "whiskey and gin"
+    )
+  )
+)
+```
+
+**Partials Object**:
+```
+Object clone do(
+  action := "drink {{ drink }}"  
+)
+```
+
+Mustache **render**:
+```
+I am Miles and I drink coffee...
+I am Wiggles and I drink whiskey and gin...
+```
+
