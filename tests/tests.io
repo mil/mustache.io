@@ -122,9 +122,9 @@ runTests := method(
 	test("Escaped HTML",
 		Mustache render(
       "I am going to escape this {{variable}}",
-			Object clone do( variable := "<, >, \, ', /, &")
+			Object clone do( variable := "<, >, \, , /, &")
     ),
-    "I am going to escape this &lt;, &gt;, &quot;, &#39;, &#x2F;, &amp; "  
+    "I am going to escape this &lt;, &gt;, &quot;, &#39;, &#x2F;, &amp;"  
 	)
 
 	test("Un-Escaped HTML",

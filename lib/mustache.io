@@ -1,30 +1,19 @@
 #!/usr/bin/env io
-Sequence charAt := method(pos, thisContext at(pos) asCharacter)
-Sequence fromToEnd := method(i, 
-  return (if (i < self size and i > 0,  self exclusiveSlice(i, self size), nil) ))
-
-/* Takes in switch statement in form of:
-  Sequence switcher((=="matchA", someCode), (=="matchB", someCode), defaultCode) */
-Object switcher := method( call message arguments foreach(index, case, 
-  if (index != call message arguments size - 1) then (
-    result := self doMessage(case arguments at(0))
-    if(result, return doMessage(case arguments at(1), call sender) call)
-  ) else ( return doMessage(case, call sender) call /* Default case */)
-))
-
+doRelativeFile("util.io")
 Mustache := Object clone do(
   delimiters := list("{{", "}}"); delSize := delimiters at(0) size 
   clone := method(self) /* Singleton */
 
   escapeHtml := method(string,
-    string := string asMutable replaceMap(Map clone do(
+    map := Map clone do(
       atPut("<" , "&lt;"  )
       atPut(">" , "&gt;"  )
       atPut("\"", "&quot;")
       atPut("'" , "&#39;" )
       atPut("/" , "&#x2F;")
       atPut("&" , "&amp;" )
-    ))
+    )
+    string := string asMutable swapMap(map)
   )
   
   /* Change the delimiters used for render */
