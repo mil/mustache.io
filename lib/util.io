@@ -35,5 +35,3 @@ Object switcher := method( call message arguments foreach(index, case,
     if(result, return doMessage(case arguments at(1), call sender) call)
   ) else ( return doMessage(case, call sender) call /* Default case */)
 ))
-
-

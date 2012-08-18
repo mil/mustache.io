@@ -93,7 +93,7 @@ Mustache := Object clone do(
           sliceEnd = ret at(1)
         )),
 
-        (==".", block( if (mustacheCapture size == 1) then (replacementString = escapeHtml(object)))), 
+        (==".", block( if (mustacheCapture size == 1 and object type == "Sequence") then (replacementString = escapeHtml(object)))), 
         (=="/", block( replacementString = "")),
         (=="^", block( 
           (
@@ -117,9 +117,7 @@ Mustache := Object clone do(
           ) 
         )),
         (=="&", block(
-          replacementString = getVariable(mustacheCapture removeAt(0), object) asString
-          
-        
+          replacementString = getVariable(mustacheCapture removeAt(0), object) asString 
         )),
 
         block( /* Default -- Variable */
@@ -131,7 +129,11 @@ Mustache := Object clone do(
       string = string atInsertSeq(sliceEnd + delSize + 1, replacementString) \
                       removeSlice(sliceStart - delSize, sliceEnd + delSize)
       /* Advance the position */
-      position = position + replacementString size; replacementString = ""
+
+      if (replacementString findSeq(delimiters at(0)) == nil) then (
+        position = position + replacementString size; 
+      )
+      replacementString = ""
     )
     string /* Return */
   )

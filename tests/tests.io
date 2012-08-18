@@ -99,6 +99,17 @@ runTests := method(
 		"I am Wiggles and here are my children:\nI'm Mr.Wiggleface, 14!\nI'm Mr.Wiggler, 24!\nI'm Mr.Wighton, 18!\n"
 	)
 
+  test("Nested Iteration",
+    Mustache render("{{a}} {{name}} {{b}} woah: {{.}} {{/b}} {{/a}}",
+      Object clone do(
+        a := list(
+          Object clone do( name := "1st"; b := list("one", "two", "three"))
+          Object clone do( name := "2nd"; b := list("uno", "dos", "tres"))
+        )
+      )
+    )
+  )
+
 
 	test("Inverted Section - Nil Reference",
 		Mustache render("Is this section {{^section}}empty?{{/section}}",
@@ -122,7 +133,7 @@ runTests := method(
 	test("Escaped HTML",
 		Mustache render(
       "I am going to escape this {{variable}}",
-			Object clone do( variable := "<, >, \, , /, &")
+			Object clone do( variable := "<, >, \", ', /, &")
     ),
     "I am going to escape this &lt;, &gt;, &quot;, &#39;, &#x2F;, &amp;"  
 	)
